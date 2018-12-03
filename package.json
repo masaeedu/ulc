@@ -1,0 +1,11 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Asad Saeeduddin <masaeedu@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@masaeedu/adt": "^1.0.3",
+    "@masaeedu/fp": "^8.0.0"
+  }
+}
