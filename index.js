@@ -16,18 +16,6 @@ const log = v => {
   console.log(util.inspect(v, null, null));
 };
 
-const trace = f => input => {
-  let output = undefined;
-  try {
-    output = f(typeof input === "function" ? trace(input) : input);
-    return typeof output === "function" ? trace(output) : output;
-  } finally {
-    log({ input, output });
-  }
-};
-
-const iterate = n => f => Fn.pipe(Arr.replicate(n)(f));
-
 // Untyped lambda calculus
 // :: type ULCExprFDT r = { Var: [Int], Lam: [r], App: [r, r] }
 
@@ -112,9 +100,9 @@ const beta_ = hylo(F)(beta)(beta);
 const tests = (() => {
   const I = Lam(Var(0));
   const M = Lam(App(Var(0))(Var(0)));
-
   const K = Lam(Lam(Var(1)));
   const C = Lam(Lam(Lam(App(App(Var(2))(Var(0)))(Var(1)))));
+  const B = Lam(Lam(Lam(App(Var(2))(App(Var(1))(Var(0))))));
 
   const NOT = C;
   const T = K;
@@ -128,7 +116,67 @@ const tests = (() => {
   const T3 = App(App(OR)(F))(F);
   const T4 = App(App(OR)(T))(F);
 
-  return { I, M, K, C, NOT, T, F, AND, T1, T2, T3, T4 };
+  const SUCC = Lam(Lam(Lam(App(Var(1))(App(App(Var(2))(Var(1)))(Var(0))))));
+
+  const N0 = Lam(I);
+  const N1 = App(SUCC)(N0);
+  const N2 = App(SUCC)(N1);
+  const N3 = App(SUCC)(N2);
+  const N4 = App(SUCC)(N3);
+
+  const ADD = Lam(Lam(App(App(Var(1))(SUCC))(Var(0))));
+
+  // TODO: Figure out why this doesn't beta reduce without an extra
+  // application of beta_
+  const N7 = beta_(App(App(ADD)(N3))(N4));
+
+  const MUL = B;
+
+  // TODO: Same here
+  const N6 = beta_(App(App(MUL)(N3))(N2));
+
+  const EXP = Lam(Lam(App(Var(0))(Var(1))));
+
+  // TODO: And here
+  const T5 = beta_(App(App(EXP)(N4))(N0));
+
+  return {
+    I,
+    M,
+    K,
+    C,
+    B,
+
+    NOT,
+    T,
+    F,
+    AND,
+
+    T1,
+    T2,
+    T3,
+    T4,
+
+    SUCC,
+
+    N0,
+    N1,
+    N2,
+    N3,
+    N4,
+
+    ADD,
+
+    N7,
+
+    MUL,
+
+    N6,
+
+    T,
+
+    T5
+  };
 })();
 
 const test = expr => ({ i: show(expr), o: show(beta_(expr)) });
@@ -143,6 +191,5 @@ module.exports = {
   test,
   subst,
   beta,
-  beta_,
-  iterate
+  beta_
 };
