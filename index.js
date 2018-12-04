@@ -80,7 +80,7 @@ const subst = v => {
   return rec(0);
 };
 
-// Eliminates a beta redex of the form `(Lam b) v` by substituting `v` throughout `b`
+// Eliminates a beta redex of the form `App (Lam b) v` by substituting `v` throughout `b`
 // Leaves any other expressions alone
 // :: ULCExpr -> ULCExpr
 const beta = match({
@@ -88,12 +88,22 @@ const beta = match({
   Lam,
   App: match({
     Var: n => App(Var(n)),
-    App: f => v => v_ => App(App(f)(v))(v_),
-    Lam: b => v => subst(v)(b)
+    App: f => v => App(App(f)(v)),
+    Lam: Fn.flip(subst)
   })
 });
 
-const beta_ = hylo(F)(beta)(beta);
+// Repeatedly eliminate beta redexes throughout an expression until it is in
+// beta normal form
+const beta_ = expr => {
+  let done = false;
+  while (!done) {
+    const result = cata(F)(beta)(expr);
+    done = show(expr) === show(result);
+    expr = result;
+  }
+  return expr;
+};
 
 // Test
 
@@ -126,19 +136,16 @@ const tests = (() => {
 
   const ADD = Lam(Lam(App(App(Var(1))(SUCC))(Var(0))));
 
-  // TODO: Figure out why this doesn't beta reduce without an extra
-  // application of beta_
-  const N7 = beta_(App(App(ADD)(N3))(N4));
+  const N7 = App(App(ADD)(N3))(N4);
 
   const MUL = B;
 
-  // TODO: Same here
-  const N6 = beta_(App(App(MUL)(N3))(N2));
+  const N6 = App(App(MUL)(N3))(N2);
 
   const EXP = Lam(Lam(App(Var(0))(Var(1))));
 
-  // TODO: And here
-  const T5 = beta_(App(App(EXP)(N4))(N0));
+  const T5 = App(App(EXP)(N4))(N0);
+  const T6 = App(App(EXP)(N4))(N2);
 
   return {
     I,
@@ -173,9 +180,10 @@ const tests = (() => {
 
     N6,
 
-    T,
+    EXP,
 
-    T5
+    T5,
+    T6
   };
 })();
 
