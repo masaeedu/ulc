@@ -147,6 +147,45 @@ const tests = (() => {
   const T5 = App(App(EXP)(N4))(N0);
   const T6 = App(App(EXP)(N4))(N2);
 
+  const ISZERO = Lam(App(App(Var(0))(Lam(F)))(T));
+
+  const T7 = App(ISZERO)(N0);
+
+  const PAIR = Lam(Lam(Lam(App(App(Var(0))(Var(2)))(Var(1)))));
+
+  const FST = Lam(App(Var(0))(T));
+  const SND = Lam(App(Var(0))(F));
+
+  const SET_FST = Lam(Lam(App(App(PAIR)(Var(1)))(App(SND)(Var(0)))));
+  const SET_SND = Lam(Lam(App(App(PAIR)(App(FST)(Var(0))))(Var(1))));
+
+  const PHI = Lam(
+    App(App(PAIR)(App(SND)(Var(0))))(App(SUCC)(App(SND)(Var(0))))
+  );
+
+  const PRED = Lam(App(FST)(App(App(Var(0))(PHI))(App(App(PAIR)(N0))(N0))));
+  const SUB = Lam(Lam(App(App(Var(0))(PRED))(Var(1))));
+
+  const T8 = App(App(SUB)(N4))(N2);
+
+  const LEQ = Lam(Lam(App(ISZERO)(App(App(SUB)(Var(1)))(Var(0)))));
+  const EQ = Lam(
+    Lam(
+      App(App(AND)(App(App(LEQ)(Var(1)))(Var(0))))(
+        App(App(LEQ)(Var(0)))(Var(1))
+      )
+    )
+  );
+
+  const T9 = App(App(EQ)(N4))(App(App(ADD)(N2))(N2));
+
+  const FIB_ = Lam(
+    Lam(Lam(App(App(Var(2))(Var(0)))(App(App(ADD)(Var(1)))(Var(0)))))
+  );
+  const FIB = Lam(App(App(App(App(Var(0))(FIB_))(K))(N0))(N1));
+
+  const T10 = App(FIB)(N6);
+
   return {
     I,
     M,
@@ -183,7 +222,33 @@ const tests = (() => {
     EXP,
 
     T5,
-    T6
+    T6,
+
+    ISZERO,
+
+    T7,
+
+    PAIR,
+    FST,
+    SND,
+    SET_FST,
+    SET_SND,
+    PHI,
+
+    PRED,
+    SUB,
+
+    T8,
+
+    LEQ,
+    EQ,
+
+    T9,
+
+    FIB_,
+    FIB,
+
+    T10
   };
 })();
 
