@@ -6,11 +6,6 @@ const cata = F => alg => {
   return rec;
 };
 
-const hylo = F => alg => coalg => {
-  const rec = x => alg(F.map(rec)(coalg(x)));
-  return rec;
-};
-
 // Untyped lambda calculus
 // :: type ULCExprFDT r = { Var: [Int], Lam: [r], App: [r, r] }
 
