@@ -84,7 +84,8 @@ const beta = match({
 });
 
 // Repeatedly eliminate beta redexes throughout an expression until it is in
-// beta normal form
+// beta normal form, or at least until it is idempotent with respect to beta
+// reduction (an example of this latter case is the omega combinator)
 const beta_ = expr => {
   let done = false;
   while (!done) {
