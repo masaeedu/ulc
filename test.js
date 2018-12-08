@@ -98,6 +98,7 @@ const tests = (() => {
     T,
     F,
     AND,
+    OR,
 
     T1,
     T2,
