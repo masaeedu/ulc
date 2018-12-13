@@ -73,7 +73,7 @@ const subst = v => {
 
 // Eliminates a beta redex of the form `App (Lam b) v` by substituting `v` throughout `b`
 // Leaves any other expressions alone
-// :: ULCExpr -> ULCExpr
+// :: ULCExprF ULCExpr -> ULCExpr
 const beta = match({
   Var,
   Lam,
