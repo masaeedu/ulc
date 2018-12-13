@@ -6,8 +6,10 @@ const cata = F => alg => {
   return rec;
 };
 
-// Untyped lambda calculus
+// :: type Fix f = f (Fix f)
 // :: type ULCExprFDT r = { Var: [Int], Lam: [r], App: [r, r] }
+// :: type ULCExprF r = Value (ULCExprFDT r)
+// :: type ULCExpr = Fix ULCExprF
 
 // :: ADT ULCExprFDT
 const ULCExprF = adt({
@@ -16,13 +18,6 @@ const ULCExprF = adt({
   App: ["r", "r"]
 });
 const { Var, Lam, App } = ULCExprF;
-
-// :: ULCExpr -> String
-const show = match({
-  Var: n => `#${n}`,
-  Lam: x => `(λ ${show(x)})`,
-  App: f => v => `($ ${show(f)} ${show(v)})`
-});
 
 // :: Functor ULCExprF
 const F = (() => {
@@ -36,8 +31,14 @@ const F = (() => {
   return { map };
 })();
 
-// :: type ULCExprF r = Value (ULCExprFDT r)
-// :: type ULCExpr = Fix ULCExprF
+// :: ULCExpr -> String
+const show = cata(F)(
+  match({
+    Var: n => `#${n}`,
+    Lam: x => `(λ ${x})`,
+    App: f => v => `($ ${f} ${v})`
+  })
+);
 
 // Increment the depth of all the free variables in an expression by some amount
 // :: Int -> ULCExpr -> ULCExpr
@@ -86,6 +87,7 @@ const beta = match({
 // Repeatedly eliminate beta redexes throughout an expression until it is in
 // beta normal form, or at least until it is idempotent with respect to beta
 // reduction (an example of this latter case is the omega combinator)
+// :: ULCExpr -> ULCExpr
 const beta_ = expr => {
   let done = false;
   while (!done) {
