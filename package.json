@@ -7,5 +7,8 @@
   "dependencies": {
     "@masaeedu/adt": "^1.0.3",
     "@masaeedu/fp": "^8.0.0"
+  },
+  "scripts": {
+    "test": "node test.js"
   }
 }
