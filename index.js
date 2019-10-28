@@ -3,9 +3,10 @@ const { Fn, cata } = require("@masaeedu/fp");
 
 // We're going to make a quick and dirty implementation of the untyped lambda calculus:
 // - Frilly features like a syntax, named variables, or literals will be eschewed. :)
+// - Variables are referred to using their deBruijn index
 // - Programs are defined directly as JS values of the expression ADT (which are serializable to JSON)
-// - As with any good untyped lambda calculus, the implementation is Turing complete, so we can
-//   (extremely tediously) implement the fibonacci function
+// - See the tests for some examples of the extremely tedious programs you can write with this
+//   language (e.g. computing the fibonacci number)
 
 const exprF = (() => {
   // The constructors of the ADT
@@ -80,8 +81,8 @@ const deepen = n => {
   return Fn.flip(cata(exprF)(alg))(-1);
 };
 
-// That's all well and good, but beta reducing once, might end up introducing
-// new beta redexes (e.g. `(x => x(2))(x => x)` -> `(x => x)(2)`). So the stupid
+// That's all well and good, but beta reducing once might end up introducing new
+// beta redexes (e.g. `(x => x(2))(x => x)` -> `(x => x)(2)`). So the stupid
 // thing to do is just keep trying to beta reduce until the expression stops
 // changing.
 
@@ -100,6 +101,8 @@ const beta_ = expr => {
   }
   return expr;
 };
+
+// And that's it! Go to the tests to see various programs defined in the language
 
 module.exports = {
   ref,
