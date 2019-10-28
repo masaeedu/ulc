@@ -1,97 +1,100 @@
 const { adt, match } = require("@masaeedu/adt");
-const { Fn } = require("@masaeedu/fp");
+const { Fn, cata } = require("@masaeedu/fp");
 
-const cata = F => alg => {
-  const rec = x => alg(F.map(rec)(x));
-  return rec;
-};
+// We're going to make a quick and dirty implementation of the untyped lambda calculus:
+// - Frilly features like a syntax, named variables, or literals will be eschewed. :)
+// - Programs are defined directly as JS values of the expression ADT (which are serializable to JSON)
+// - As with any good untyped lambda calculus, the implementation is Turing complete, so we can
+//   (extremely tediously) implement the fibonacci function
 
-// :: type Fix f = f (Fix f)
-// :: type ULCExprFDT r = { Var: [Int], Lam: [r], App: [r, r] }
-// :: type ULCExprF r = Value (ULCExprFDT r)
-// :: type ULCExpr = Fix ULCExprF
+const exprF = (() => {
+  // The constructors of the ADT
+  const a = adt({ ref: ["int"], lam: ["r"], app: ["r", "r"] });
 
-// :: ADT ULCExprFDT
-const ULCExprF = adt({
-  Var: ["Int"],
-  Lam: ["r"],
-  App: ["r", "r"]
-});
-const { Var, Lam, App } = ULCExprF;
-
-// :: Functor ULCExprF
-const F = (() => {
+  // The functor (we want to map over recursive positions)
   const map = f =>
     match({
-      Var,
-      Lam: b => Lam(f(b)),
-      App: h => v => App(f(h))(f(v))
+      ref,
+      lam: b => lam(f(b)),
+      app: h => v => app(f(h))(f(v))
     });
 
-  return { map };
+  return { ...a, map };
 })();
 
-// :: ULCExpr -> String
-const show = cata(F)(
+const { ref, lam, app } = exprF;
+
+// Serializing expressions
+const show = cata(exprF)(
   match({
-    Var: n => `#${n}`,
-    Lam: x => `(λ ${x})`,
-    App: f => v => `($ ${f} ${v})`
+    ref: n => `#${n}`,
+    lam: x => `(λ ${x})`,
+    app: f => v => `($ ${f} ${v})`
   })
 );
 
-// Increment the depth of all the free variables in an expression by some amount
-// :: Int -> ULCExpr -> ULCExpr
-const deepen = n => {
-  const rec = d =>
-    match({
-      Var: n_ => Var(n_ > d ? n_ + n : n_),
-      Lam: b => Lam(rec(d + 1)(b)),
-      App: f => a => App(rec(d)(f))(rec(d)(a))
-    });
-  return rec(-1);
-};
+// Ok, now we're going to dive directly into the runtime semantics of the language
 
-// :: Int -> ULCExpr -> ULCExpr -> ULCExpr
-const subst = v => {
-  const rec = d =>
-    match({
-      // If the variable is referencing the lambda argument we're eliminating,
-      // perform a substitution (adjusting free variables in the substituted expression)
-      //
-      // If the variable references an argument entirely beyond the current depth,
-      // decrement it, as it's a free variable
-      //
-      // Otherwise, leave the variable unchanged
-      Var: n_ => (n_ === d ? deepen(d)(v) : n_ > d ? Var(n_ - 1) : Var(n_)),
-      Lam: b => Lam(rec(d + 1)(b)),
-      App: f => a => App(rec(d)(f))(rec(d)(a))
-    });
+// The only thing we need to implement is beta reduction, which...
 
-  return rec(0);
-};
-
-// Eliminates a beta redex of the form `App (Lam b) v` by substituting `v` throughout `b`
+// Eliminates a "beta redex" of the form `app (lam f) v` by substituting `v` throughout `f`
 // Leaves any other expressions alone
-// :: ULCExprF ULCExpr -> ULCExpr
 const beta = match({
-  Var,
-  Lam,
-  App: match({
-    Var: n => App(Var(n)),
-    App: f => v => App(App(f)(v)),
-    Lam: Fn.flip(subst)
+  ref,
+  lam,
+  app: match({
+    ref: n => app(ref(n)),
+    app: f => v => app(app(f)(v)),
+    lam: f => v => subst(v)(f) // If we do have an `app (lam f) v`, we need to substitute it
   })
 });
 
+// Given some expression, use it to replace all references to the bound variable of a
+// lambda expression within its body
+const subst = v => {
+  const alg = match({
+    // If the variable is referencing the lambda argument we're eliminating, perform a
+    // substitution ("deepening" free variables in the substituted expression). See
+    // `deepen` below
+
+    // If the variable references an argument entirely beyond the current depth,
+    // decrement it, as it's a free variable
+
+    // Otherwise, leave the variable unchanged
+    ref: n_ => d => (n_ === d ? deepen(d)(v) : n_ > d ? ref(n_ - 1) : ref(n_)),
+    lam: b => d => lam(b(d + 1)),
+    app: f => a => d => app(f(d))(a(d))
+  });
+
+  return Fn.flip(cata(exprF)(alg))(0);
+};
+
+// Increment the depth of all the free variables in an expression by some amount.
+const deepen = n => {
+  const alg = match({
+    ref: n_ => d => ref(n_ > d ? n_ + n : n_),
+    lam: b => d => lam(b(d + 1)),
+    app: f => a => d => app(f(d))(a(d))
+  });
+
+  return Fn.flip(cata(exprF)(alg))(-1);
+};
+
+// That's all well and good, but beta reducing once, might end up introducing
+// new beta redexes (e.g. `(x => x(2))(x => x)` -> `(x => x)(2)`). So the stupid
+// thing to do is just keep trying to beta reduce until the expression stops
+// changing.
+
+// And that's just what we're going to do...
+
 // Repeatedly eliminate beta redexes throughout an expression until it is in
 // beta normal form, or at least until it is idempotent with respect to beta
-// reduction (an example of this latter case is the omega combinator)
-// :: ULCExpr -> ULCExpr
+// reduction (an example of this latter case is the omega combinator, which
+// can never be beta reduced to a beta normal form)
 const beta_ = expr => {
   let done = false;
   while (!done) {
-    const result = cata(F)(beta)(expr);
+    const result = cata(exprF)(beta)(expr);
     done = show(expr) === show(result);
     expr = result;
   }
@@ -99,9 +102,9 @@ const beta_ = expr => {
 };
 
 module.exports = {
-  Var,
-  Lam,
-  App,
+  ref,
+  lam,
+  app,
   show,
   beta,
   beta_

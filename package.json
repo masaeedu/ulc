@@ -6,7 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@masaeedu/adt": "^1.0.3",
-    "@masaeedu/fp": "^8.0.0"
+    "@masaeedu/fp": "https://github.com/masaeedu/fp.git#dev"
   },
   "scripts": {
     "test": "node test.js"

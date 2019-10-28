@@ -3,31 +3,56 @@
 
 
 "@babel/polyfill@^7.0.0-beta.52":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.0.0.tgz#c8ff65c9ec3be6a1ba10113ebd40e8750fb90bff"
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/@babel/polyfill/-/polyfill-7.6.0.tgz#6d89203f8b6cd323e8d946e47774ea35dc0619cc"
+  integrity sha512-q5BZJI0n/B10VaQQvln1IlDK3BTBJFbADx7tv+oXDPIDZuTo37H5Adb9jhlXm/fEN4Y7/64qD9mnrJJG7rmaTw==
   dependencies:
-    core-js "^2.5.7"
-    regenerator-runtime "^0.11.1"
+    core-js "^2.6.5"
+    regenerator-runtime "^0.13.2"
 
 "@masaeedu/adt@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@masaeedu/adt/-/adt-1.0.3.tgz#4551f0ea90f72bb0f98b56c8bf647e62cb10cde4"
 
+"@masaeedu/do@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@masaeedu/do/-/do-0.0.1.tgz#ce35ee8c728238e5db2b069a8e4501afe05e48f2"
+  integrity sha512-OLxerQzEieatYyg0s7L/GqRXVQZj67xgDx2AuadM4eyefUrkm8LQva8lI3G6WARuS/hs8ba3xaZpsq4V9OA+rQ==
+
 "@masaeedu/fp@^8.0.0":
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/@masaeedu/fp/-/fp-8.0.0.tgz#4bca2ea45e4d283bbdd2687cb8c0ed688cb6a7a6"
+  integrity sha512-+xqUQ80yJvGOyDmhZkYaN1kZ9GcfzaPI0vhf+bd+7MDQ7leN+DfJ5/1iCrVcAQgECea9fUYmQNjWbmh1wP9jPQ==
   dependencies:
     "@babel/polyfill" "^7.0.0-beta.52"
     natch "^1.1.1"
 
-core-js@^2.5.7:
-  version "2.5.7"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.7.tgz#f972608ff0cead68b841a16a932d0b183791814e"
+"@masaeedu/fp@https://github.com/masaeedu/fp.git#dev":
+  version "10.1.0"
+  resolved "https://github.com/masaeedu/fp.git#e8fd4272748115f804a2d2dce73b30fc498a6516"
+  dependencies:
+    "@babel/polyfill" "^7.0.0-beta.52"
+    "@masaeedu/adt" "^1.0.3"
+    "@masaeedu/do" "^0.0.1"
+    "@masaeedu/infix" "^1.2.0"
+    natch "^1.1.1"
+
+"@masaeedu/infix@^1.2.0":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@masaeedu/infix/-/infix-1.2.1.tgz#423145ad6020355a87c9d7ce28dd8a8e93945621"
+  integrity sha512-98hBIX+sKgwG29yc1KnQ554jbsS7hkv+lKlWD95k1rbIfmftaI4oyACaSA4zykFRVvfycFCkQXGWDQjimJJIBA==
+
+core-js@^2.6.5:
+  version "2.6.10"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.10.tgz#8a5b8391f8cc7013da703411ce5b585706300d7f"
+  integrity sha512-I39t74+4t+zau64EN1fE5v2W31Adtc/REhzWN+gWRRXg6WH5qAsZm62DHpQ1+Yhe4047T55jvzz7MUqF/dBBlA==
 
 natch@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/natch/-/natch-1.1.1.tgz#ef20fd67fe2e3c4ff3c4e6634dacb43c0637ec33"
+  integrity sha1-7yD9Z/4uPE/zxOZjTay0PAY37DM=
 
-regenerator-runtime@^0.11.1:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
+regenerator-runtime@^0.13.2:
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
+  integrity sha512-naKIZz2GQ8JWh///G7L3X6LaQUAMp2lvb1rvwwsURe/VXwD6VMfr+/1NuNw3ag8v2kY1aQ/go5SNn79O9JU7yw==
